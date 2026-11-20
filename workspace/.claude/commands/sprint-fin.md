@@ -1,10 +1,7 @@
 ---
-description: Revue et rétrospective de sprint
+description: Revue et rétrospective de sprint (orchestrée)
 ---
-<!-- RÉSERVÉ À CLAUDE CODE -->
-1. Pour chaque US engagée : Done ou non, temps réel.
-2. Compléter revue + rétro dans `SNN.md`, ajouter la ligne dans `velocity.md`.
-3. US non terminées : remettre en Todo, retirer le champ Sprint.
-4. Écrire `nautilus/docs/revues/SNN.md` pour Fouad (règles : PROCESS.md, section REVUE).
-5. Committer et pousser dans `nautilus`.
-6. Envoyer à Fouad le contenu de la revue (livré, comment tester, reste, questions).
+1. Appeler `testeur-qualite` : non-régression sur les dépôts touchés pendant le sprint.
+2. Appeler `scrum-master` (FIN) : revue + rétro dans `SNN.md`, `velocity.md`, US non finies remises en Todo, revue lisible `nautilus/docs/revues/SNN.md`.
+3. Commit + push dans `nautilus`.
+4. Envoyer à Fouad le contenu de la revue : livré, comment tester, reste, questions.

@@ -2,8 +2,12 @@
 # PROCESSUS SCRUM AUTOGÉRÉ — NAUTILUS
 
 ## RÔLES
-- Fouad = client (MOA/MOE). Supervise, teste, tranche les questions métier. NE LIT PAS les tickets.
-- Claude = équipe de dev + scrum master + PO délégué. Tient le backlog, planifie, code, teste, livre, rend compte.
+- Fouad = client (MOA/MOE). Lance/arrête les sessions (`nautilus start` / `stop`), valide le plan du daily, teste les livraisons. NE LIT PAS les tickets, n'intervient pas sur les agents.
+- Orchestrateur = session principale (CLAUDE.md racine). Seul interlocuteur de Fouad. Délègue, intègre, fusionne.
+- Sous-agents (`.claude/agents/`) : po, scrum-master, archi-logiciel, archi-infra, ux-ui, dev-back, dev-mobile, dev-web, testeur-fonctionnel, testeur-qualite. Chacun n'intervient que si sa compétence est nécessaire.
+- Validation d'une PR : testeur-fonctionnel toujours ; testeur-qualite si interface ; archi-logiciel si contrat/architecture/modèle ; archi-infra si infra/CI. Fusion par l'orchestrateur.
+- Assignation : étiquette `agent:<nom>` sur l'issue + statut dans le projet.
+- Specs UX : `nautilus/docs/ux/<appli>-<ecran>.md`, obligatoires avant tout écran.
 
 ## OUTILS (source de vérité = GitHub)
 - Issues : epics dans `hayupisama/nautilus` ; features et US dans les dépôts de code. Hiérarchie par sous-tickets (epic > feature > us).
@@ -25,7 +29,7 @@ gh pr merge --squash --delete-branch
 ## CYCLE DE SPRINT
 - Durée : défini par l'objectif, ~10 h estimées par sprint. Numérotation S01, S02…
 - PLANNING (`/sprint-debut`) : objectif en 1 phrase ; sélection d'US « prêtes » par ordre de dépendances ; champ Sprint renseigné ; fichier `.claude/scrum/sprints/SNN.md` créé.
-- DAILY : au début de chaque session (`/reprise`) : état du sprint, US en cours, blocages.
+- DAILY : au début de chaque session (`/daily`) : état du sprint, US en cours, blocages.
 - FIN (`/sprint-fin`) : revue + rétro dans `SNN.md` ; vélocité dans `velocity.md` ; revue lisible pour Fouad dans `nautilus/docs/revues/SNN.md` ; message à Fouad avec ce qu'il peut tester.
 
 ## DEFINITION OF READY (US)

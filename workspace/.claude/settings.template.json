@@ -1,0 +1,13 @@
+{
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [ { "type": "command", "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"__ROOT__/.claude/hooks/session-start.ps1\"" } ] }
+    ],
+    "PreToolUse": [
+      { "matcher": "Bash|PowerShell", "hooks": [ { "type": "command", "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"__ROOT__/.claude/hooks/guard.ps1\"" } ] }
+    ],
+    "PostToolUse": [
+      { "matcher": "*", "hooks": [ { "type": "command", "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"__ROOT__/.claude/hooks/limits.ps1\"" } ] }
+    ]
+  }
+}
