@@ -29,3 +29,12 @@ Détails et justifications : [cahier des charges](cahier-des-charges.md), sectio
 - Le VPS (U03 à U07) est reporté : il fera l'objet d'un sprint dédié une fois une v0.0.1 stable obtenue en local, avec tous les branchements (même sans fonctionnalités).
 - Tout tourne en local (docker compose : PostgreSQL/PostGIS, Keycloak ; API et applis en local). L'authentification s'appuie sur ce Keycloak local (U44), plus sur le VPS.
 - Décision de Fouad.
+
+## 2026-11-20 — Conception du contrat v0.2.0 (proposées par archi-logiciel)
+
+- **D1 Authentification hors API** : Keycloak (Authorization Code + PKCE, clients publics) ; l'API est serveur de ressources ; pas de routes `/auth/*`.
+- **D2 Versionnage** : semver ; cassant autorisé en mineure tant que < 1.0.0 ; ensuite cassant = majeure ; préfixe `/v1`.
+- **D3 Rôles** : `passenger`, `booker`, `driver`, `admin` (cumulables) ; contrôle rôle + propriétaire ; 404 si ressource non visible.
+- **D4 Erreurs** : RFC 9457, `type` = `urn:nautilus:problem:<code>` ; 400 schéma / 422 règle métier / 409 état.
+- **D5 Compatibilité générateurs** : OpenAPI 3.1 limité au sous-ensemble 3.0 ; aucun type en ligne ; montants en euros.
+- **D6 Routes en anglais** : suit le glossaire ; routes françaises du CDC 8.3 indicatives (en attente d'accord de Fouad pour modifier le CDC).
