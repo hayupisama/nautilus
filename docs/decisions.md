@@ -38,3 +38,11 @@ Détails et justifications : [cahier des charges](cahier-des-charges.md), sectio
 - **D4 Erreurs** : RFC 9457, `type` = `urn:nautilus:problem:<code>` ; 400 schéma / 422 règle métier / 409 état.
 - **D5 Compatibilité générateurs** : OpenAPI 3.1 limité au sous-ensemble 3.0 ; aucun type en ligne ; montants en euros.
 - **D6 Routes en anglais** : suit le glossaire ; routes françaises du CDC 8.3 indicatives (en attente d'accord de Fouad pour modifier le CDC).
+
+## 2026-11-20 — Squelette de l'API (U08, archi-logiciel)
+
+- **Génération serveur** : openapi-generator `jaxrs-spec` 7.14.0, interfaces seules, Jakarta EE, `java.time`, sans annotations Swagger ; code généré à chaque build (jamais versionné) ; paquet `fr.nautilus.contract` utilisé seulement par `adapter.in.rest`.
+- **Contrat (dépôt privé)** : copie versionnée dans `src/main/openapi` avec tag et sha256, mise à jour par `scripts/sync-contract.sh <tag>`, vérifiée par la CI sans secret. Sous-module et GitHub Packages écartés (jeton inter-dépôts = secret).
+- **Base de l'API** : `/v1` via `quarkus.rest.path` ; endpoints techniques sous `/q/*`.
+- **Données géographiques** : hibernate-spatial accepté sous condition (validation en natif avec une vraie entité `geography` ; repli WKT/WKB + SQL natif) ; le domaine utilise son propre value object (`GeoPoint`), jamais JTS.
+- **Auth en test** : OIDC désactivé en `%test` jusqu'à U44, qui le réactive avec Keycloak Dev Services.
