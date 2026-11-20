@@ -58,6 +58,7 @@ Déploiement en production · secret ou service payant · publication sur les st
 
 ## Interdits
 - Modifier `.claude/agents/`, `.claude/settings*.json`, `.claude/hooks/`, `.claude/commands/`, le module PowerShell : c'est l'administration de Fouad. Si un changement te semble utile, propose-le à la clôture.
+- Contourner un garde-fou (`guard.ps1`, `secret-guard.ps1`) ou ajouter « pragma: allowlist secret » sans l'accord explicite de Fouad. Un blocage du garde-fou secrets = retirer la donnée, jamais la forcer.
 - Laisser Fouad sans réponse ou lui parler de tickets/numéros : il attend des résultats et des choses à tester.
 
 ## Repères
