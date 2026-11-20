@@ -52,10 +52,62 @@ function Invoke-Cloture {
   Write-N "Session terminée." Green
 }
 
+function Show-Menu {
+  while ($true) {
+    Clear-Host
+    $s = Get-Session
+    Write-Host ""
+    Write-Host "  ╔══════════════════════════════════════════╗" -ForegroundColor Cyan
+    Write-Host "  ║            NAUTILUS — pilotage           ║" -ForegroundColor Cyan
+    Write-Host "  ╚══════════════════════════════════════════╝" -ForegroundColor Cyan
+    if ($s -and -not $s.closed) {
+      $deb = ([datetime]$s.start).ToString("HH:mm")
+      Write-Host "   Session en cours depuis $deb (max $($s.maxMinutes) min)" -ForegroundColor Yellow
+    } else { Write-Host "   Aucune session en cours" -ForegroundColor DarkGray }
+    Write-Host ""
+    Write-Host "   SESSION"
+    Write-Host "    1  Démarrer une session de dev"
+    Write-Host "    2  Arrêter / clôturer la session"
+    Write-Host ""
+    Write-Host "   SUIVI"
+    Write-Host "    3  État d'avancement"
+    Write-Host "    4  Dernière revue de sprint"
+    Write-Host "    5  Consommation (fenêtre de 5 h)"
+    Write-Host ""
+    Write-Host "   POSTE"
+    Write-Host "    6  Vérifier le poste"
+    Write-Host "    7  Réparer le poste (installer ce qui manque)"
+    Write-Host "    8  Mettre à jour (Claude Code, dépôts, commande nautilus)"
+    Write-Host ""
+    Write-Host "    9  Aide        0  Quitter"
+    Write-Host ""
+    $c = Read-Host "   Ton choix"
+    switch ($c) {
+      "1" {
+        $d = Read-Host "   Durée max [2h]"; if (-not $d) { $d = "2h" }
+        $u = Read-Host "   Seuil d'usage en % [80]"; if (-not $u) { $u = "80" }
+        try { nautilus start -Duree $d -Seuil ([int]$u) } catch { Write-N $_.Exception.Message Red }
+      }
+      "2" { nautilus stop }
+      "3" { nautilus etat }
+      "4" { nautilus revue }
+      "5" { nautilus usage }
+      "6" { nautilus check }
+      "7" { nautilus check -Reparer }
+      "8" { nautilus maj }
+      "9" { nautilus aide }
+      { $_ -in "0","q","Q","" } { return }
+      default { Write-N "Choix inconnu : $c" Yellow }
+    }
+    Write-Host ""
+    Read-Host "   Entrée pour revenir au menu" | Out-Null
+  }
+}
+
 function nautilus {
   [CmdletBinding()]
   param(
-    [Parameter(Position = 0)] [string]$Commande = "aide",
+    [Parameter(Position = 0)] [string]$Commande = "menu",
     [string]$Duree = "2h",
     [int]$Seuil = 80,
     [string]$Modele,
@@ -63,6 +115,8 @@ function nautilus {
     [switch]$Force
   )
   switch ($Commande.ToLower()) {
+
+    "menu" { Show-Menu }
 
     "start" {
       if (-not (Test-Root)) { return }
@@ -116,11 +170,21 @@ function nautilus {
 
     "maj" {
       Write-N "Mise à jour de Claude Code…"; claude update
-      if (Test-Root) { Write-N "Mise à jour des dépôts…"; Update-Repos }
+      if (Test-Root) {
+        Write-N "Mise à jour des dépôts…"; Update-Repos
+        $src = Join-Path $script:Root "nautilus\workspace\powershell"
+        $docs = [Environment]::GetFolderPath("MyDocuments")
+        foreach ($m in @((Join-Path $docs "WindowsPowerShell\Modules\Nautilus"), (Join-Path $docs "PowerShell\Modules\Nautilus"))) {
+          New-Item -ItemType Directory -Force -Path $m | Out-Null
+          Copy-Item (Join-Path $src "Nautilus.ps*1") $m -Force
+        }
+        Write-N "Commande nautilus mise à jour (effective dans un nouveau PowerShell)."
+      }
       Write-N "Terminé." Green
     }
 
     "check" {
+      $script:missing = $false
       $tools = @(
         @{ n = "git";    t = { git --version };                     w = "Git.Git" },
         @{ n = "gh";     t = { gh --version };                      w = "GitHub.cli" },
@@ -135,6 +199,7 @@ function nautilus {
         if ($ok) { try { $v = & $x.t 2>$null } catch {} }
         if ($ok) { Write-Host ("  OK   {0,-8} {1}" -f $x.n, ($v | Select-Object -First 1)) -ForegroundColor Green; continue }
         Write-Host ("  ---  {0,-8} absent" -f $x.n) -ForegroundColor Yellow
+        $script:missing = $true
         if ($Reparer -and $x.w) {
           if ($x.w -eq "flutter-git") {
             $dest = Join-Path $HOME "dev\flutter"
@@ -149,7 +214,7 @@ function nautilus {
       $auth = gh auth status 2>&1 | Out-String
       if ($auth -match "Logged in") { Write-Host "  OK   gh auth" -ForegroundColor Green } else { Write-Host "  ---  gh auth : lance 'gh auth login'" -ForegroundColor Yellow }
       if ($auth -notmatch "'project'") { Write-Host "  ---  gh : droit 'project' manquant ('gh auth refresh -s project')" -ForegroundColor Yellow }
-      if (-not $Reparer) { Write-N "Pour installer ce qui manque : nautilus check -Reparer" }
+      if (-not $Reparer -and $script:missing) { Write-N "Pour installer ce qui manque : nautilus check -Reparer" }
       Test-Root | Out-Null
     }
 
@@ -157,6 +222,8 @@ function nautilus {
       Write-Host @"
 
   NAUTILUS — commandes de Fouad (depuis n'importe quel dossier)
+
+  nautilus           Ouvre le menu.
 
   nautilus start [-Duree 2h] [-Seuil 80] [-Modele opus]
         Met à jour les dépôts, ouvre la session de dev et lance le daily.
