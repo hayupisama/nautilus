@@ -1,0 +1,52 @@
+# CLAUDE.md — nautilus (dépôt projet)
+
+## Rôle de ce dépôt
+
+Source de vérité fonctionnelle et transverse. Pas de code applicatif ici.
+
+- `docs/cahier-des-charges.md` : cahier des charges complet (lots, fonctionnalités, matching, accessibilité, réglementaire, architecture).
+- `docs/decisions.md` : journal des décisions transverses (ADR courts). Toute décision qui touche plusieurs dépôts y est consignée.
+- `docs/glossaire.md` : correspondance des termes métier FR -> identifiants de code EN. À respecter dans tous les dépôts.
+- `docs/CLA.md` : accord de contribution.
+
+## Règles propres à ce dépôt
+
+- Le cahier des charges est un document humain : garder un français clair, phrases courtes.
+- Modifier le cahier des charges uniquement à la demande de l'utilisateur ; signaler toute incohérence trouvée ailleurs plutôt que corriger en silence.
+- Nouvelle décision transverse : ajouter une entrée datée en tête de `docs/decisions.md` (format existant).
+- Nouveau terme métier : l'ajouter au glossaire avant de l'utiliser dans le code.
+
+## Carte des dépôts
+
+| Dépôt | Contenu | Dépend de |
+| --- | --- | --- |
+| nautilus-contrat-api | OpenAPI (source de vérité de l'API) | — |
+| nautilus-api | Quarkus, hexagonal par module | contrat-api |
+| nautilus-flutter-commun | Package Flutter : design system accessible, client Dart généré, auth | contrat-api |
+| nautilus-app-passager | Appli passager / réservant | flutter-commun |
+| nautilus-app-chauffeur | Appli chauffeur | flutter-commun |
+| nautilus-back-office | Angular + Material, client TS généré | contrat-api |
+| nautilus-infra | k3s, Helm, secrets SOPS, sauvegardes, Grafana | images des autres dépôts |
+
+## Contexte projet (commun)
+
+- Projet : **Nautilus** (nom de code), appli VTC marketplace dédiée aux PMR, lancement à Nantes (métropole + aéroport + gare).
+- Side project, développeur unique, budget quasi nul, < 5 h/semaine, démarrage janvier 2027.
+- Référence fonctionnelle : `nautilus/docs/cahier-des-charges.md`. Glossaire : `nautilus/docs/glossaire.md`. Décisions transverses : `nautilus/docs/decisions.md`.
+- Lot en cours : **lot 0 – prototype** avec données fictives. Objectif : un prototype fonctionnel et démontrable. La validation terrain est faite par un autre intervenant.
+- Licence : PolyForm Noncommercial 1.0.0. Ne jamais ajouter de dépendance dont la licence interdit cet usage.
+
+## Règles transverses
+
+- Langue : identifiants de code en anglais (voir glossaire FR -> EN) ; docs, commits et messages à l'utilisateur en français.
+- Commits : Conventional Commits. Ne jamais pousser ni ouvrir de PR sans accord explicite.
+- Accessibilité WCAG 2.2 AA obligatoire sur toute interface : c'est un critère d'acceptation, pas une option.
+- Données : profil de besoins = besoins fonctionnels, jamais de pathologie. Aucune donnée personnelle réelle dans le code, les tests ou les fixtures.
+- Secrets : jamais dans le dépôt (même privé).
+- Contrat d'API : la source de vérité est `nautilus-contrat-api`. Ne jamais modifier un client généré à la main.
+
+## Sessions Claude Code
+
+- Au démarrage, le dernier résumé est injecté automatiquement (hook SessionStart). Commande `/reprise` pour reprendre proprement.
+- En fin de session, ou quand l'utilisateur annonce une pause : `/cloture`.
+- Protocole : `.claude/sessions/_PROTOCOLE.md`. Ce dossier est réservé à Claude Code ; ne pas le mentionner dans la documentation destinée aux humains.
