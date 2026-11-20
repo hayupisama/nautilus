@@ -23,3 +23,9 @@ Journal des décisions qui touchent plusieurs dépôts. Plus récentes en haut.
 | CI | GitHub Actions (runners macOS pour iOS) |
 
 Détails et justifications : [cahier des charges](cahier-des-charges.md), sections 1 à 10.
+
+## 2026-11-20 — VPS reporté, développement 100 % local
+
+- Le VPS (U03 à U07) est reporté : il fera l'objet d'un sprint dédié une fois une v0.0.1 stable obtenue en local, avec tous les branchements (même sans fonctionnalités).
+- Tout tourne en local (docker compose : PostgreSQL/PostGIS, Keycloak ; API et applis en local). L'authentification s'appuie sur ce Keycloak local (U44), plus sur le VPS.
+- Décision de Fouad.
