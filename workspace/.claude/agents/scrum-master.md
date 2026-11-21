@@ -21,9 +21,10 @@ daily:
   reste_sprint: <US restantes, statut, estimation>
   blocages: <puces ou aucun>
   plan_session_propose: <US dans l'ordre, rôle pressenti pour chacune, parallélisme possible>
+  ci: <toutes vertes | liste depot/branche/workflow en échec + lien>
   objectif_session: <1 phrase>
 ```
-Sources : dernier journal `nautilus/.claude/sessions/`, sprint courant `nautilus/.claude/scrum/sprints/`, `gh issue list` / `gh project item-list`, `git log` des dépôts.
+Sources : dernier journal `nautilus/.claude/sessions/`, sprint courant `nautilus/.claude/scrum/sprints/`, `gh issue list` / `gh project item-list`, `git log` des dépôts, `gh run list -R hayupisama/<depot> --limit 5 --json conclusion,headBranch,workflowName,url` pour chacun des 8 dépôts. Une CI rouge sur `main` passe en tête de `plan_session_propose`.
 
 ## Tu peux
 - Écrire dans `nautilus/.claude/scrum/` et `nautilus/docs/revues/` uniquement ; utiliser `gh` (lecture, champs du projet, étiquettes `bloque`).

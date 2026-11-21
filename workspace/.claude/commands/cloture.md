@@ -5,6 +5,7 @@ description: Clôture de session (journal, sprint, statuts) — lancée par Foua
 2. Date/heure : `TZ=Europe/Paris date +%F` / `+%H:%M`.
 3. Journal global `nautilus/.claude/sessions/AAAA-MM-JJ.md` : nouvelle section au format strict de `_PROTOCOLE.md` (`refs:` = depot#n touchés, agents appelés).
 4. Sprint courant : ligne de suivi datée. Projet : statuts et étiquettes `agent:*` exacts.
+4b. État des CI des 8 dépôts : chaque échec non résolu est réparé ou mis en ticket `bug` ; le noter dans le journal (`ci:`).
 5. Commit + push dans `nautilus` : `chore(session): AAAA-MM-JJ`.
 6. Mettre `"closed": true` dans `.nautilus/session.json`.
-7. Dire à Fouad en 3 lignes : ce qui est fait, ce qu'il peut tester, ce qui vient ensuite.
+7. Dire à Fouad en 3 lignes : ce qui est fait, ce qu'il peut tester, ce qui vient ensuite, et l'état des CI s'il reste du rouge.

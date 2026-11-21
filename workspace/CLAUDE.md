@@ -48,6 +48,13 @@ Parallélisme : lancer en même temps (plusieurs appels d'agents dans un même m
 - BLOQUANT pour toute la session (rien ne peut avancer) -> ALERTER Fouad IMMÉDIATEMENT : `⚠️ BLOCAGE` + cause + ce qui a été tenté + ce qu'il doit faire (action précise ou choix fermé).
 - Question métier (règle ambiguë, périmètre) -> question fermée à Fouad avec options et recommandation ; en attendant, étiquette `bloque` et autre US.
 
+## Surveillance de la CI (GitHub Actions)
+- Après chaque push : `gh pr checks <n> -R hayupisama/<depot> --watch` (ou `gh run watch`). Ne jamais passer à autre chose en laissant une PR rouge.
+- CI rouge : `gh run view <id> -R hayupisama/<depot> --log-failed`, diagnostiquer, puis corriger soi-même si trivial, sinon déléguer : `archi-infra` si la cause est la CI/l'environnement, le dev de la dominante si c'est le code. Revalider.
+- `main` rouge (après fusion) = priorité absolue, avant toute nouvelle US.
+- Daily et clôture : état des CI des 8 dépôts (`gh run list -R hayupisama/<depot> --limit 5 --json conclusion,headBranch,workflowName,createdAt,url`). Toute exécution en échec non résolue -> réparée ou ticket `bug` avec étiquette `agent:<rôle>`.
+- Échecs répétés d'une même CI en cours de mise au point : regrouper les corrections, éviter les pushs à l'aveugle (tester localement d'abord : `act`, lint du workflow, script lancé à la main).
+
 ## Limites de session
 - Un hook signale l'approche de la durée max ou du seuil d'usage (estimation de la fenêtre de 5 h Claude).
 - `LIMITE PROCHE` -> ne plus démarrer d'US ; terminer proprement celle en cours.
