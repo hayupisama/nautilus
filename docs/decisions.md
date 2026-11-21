@@ -46,3 +46,12 @@ Détails et justifications : [cahier des charges](cahier-des-charges.md), sectio
 - **Base de l'API** : `/v1` via `quarkus.rest.path` ; endpoints techniques sous `/q/*`.
 - **Données géographiques** : hibernate-spatial accepté sous condition (validation en natif avec une vraie entité `geography` ; repli WKT/WKB + SQL natif) ; le domaine utilise son propre value object (`GeoPoint`), jamais JTS.
 - **Auth en test** : OIDC désactivé en `%test` jusqu'à U44, qui le réactive avec Keycloak Dev Services.
+
+## 2026-11-21 — Environnement local, dépôts publics, secrets (Fouad, archi-infra)
+
+- **Dépôts publics** : les 8 dépôts sont publics (audit de secrets fait, historique et refs de PR scannés) pour pouvoir protéger les tags `v*` (plan GitHub Free). Le projet « Nautilus - Backlog » reste privé. La mention « contrat privé » ci-dessus (U08) n'est plus vraie ; la copie versionnée du contrat reste le mécanisme retenu.
+- **Tags `v*`** : 2 rulesets par dépôt, `tags-v-immuables` (suppression, mise à jour, forçage interdits) et `tags-v-creation-admin`. Corriger un tag raté = désactiver brièvement le premier.
+- **Règle secrets** : jamais de mot de passe, clé ou identifiant en dur dans un dépôt, même factice ; modèle `.env.example` avec instructions, `.env` ignoré, scripts qui lisent l'environnement. Les valeurs factices du commit a40abbe / 33211f5 (PR infra#13) sont considérées compromises, jamais réutilisées, non purgées.
+- **Keycloak local (U44)** : realm `nautilus`, rôles passenger/booker/driver/admin, clients publics PKCE S256 pour passager, chauffeur, back-office ; émetteur `http://localhost:8180/realms/nautilus` ; redirections `fr.nautilus.passenger:/oauthredirect`, `fr.nautilus.driver:/oauthredirect` (à aligner avec les identifiants d'application Flutter), back-office `http://localhost:4200` ; client `nautilus-dev-tools` réservé au local (ne jamais en recette/prod, cf. infra#14). Base de l'API : `QUARKUS_DATASOURCE_USERNAME` / `QUARKUS_DATASOURCE_PASSWORD`, config `%dev` dans `nautilus-infra/local/README.md`.
+- **OSRM local (U45)** : extrait Geofabrik Pays de la Loire figé au 01/01/2026, serveur sur `127.0.0.1:5000` ; licence ODbL, mention © OpenStreetMap à afficher dans les applis et le back-office (nautilus#21).
+- **Versions du package commun** : `v0.1.0` = design system (S01), `v0.2.0` = composants champ, carte, étape, sélecteur (S02). Texte de base 18 sp, anneau de focus externe `NautilusFocusRing`.
