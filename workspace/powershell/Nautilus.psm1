@@ -8,9 +8,13 @@ $script:Cfg = Join-Path $script:Root ".nautilus\session.json"
 function Write-N($t, $c = "Cyan") { Write-Host "[nautilus] $t" -ForegroundColor $c }
 
 function Get-Minutes([string]$d) {
-  if ($d -match '^(\d+)h(\d+)?$') { return [int]$Matches[1] * 60 + [int]("0" + $Matches[2]) }
-  if ($d -match '^(\d+)(m|min)?$') { return [int]$Matches[1] }
-  throw "Durée invalide : $d (exemples : 2h, 1h30, 90m)"
+  $d = $d.Trim().ToLower() -replace '\s', ''
+  if ($d -match '^(\d+)h(\d+)?(min|m)?$') { $m = [int]$Matches[1] * 60 + [int]("0" + $Matches[2]) }
+  elseif ($d -match '^(\d+)(min|m)$') { $m = [int]$Matches[1] }
+  elseif ($d -match '^(\d+)([.,](\d+))?$') { $m = [int][math]::Round([double]($d -replace ',', '.') * 60) }  # nombre seul = heures
+  else { throw "Durée invalide : $d (exemples : 2, 2h, 1h30, 90m)" }
+  if ($m -lt 15 -or $m -gt 600) { throw "Durée hors limites : $m min (entre 15 min et 10 h)" }
+  return $m
 }
 
 function Update-Repos {
@@ -84,8 +88,9 @@ function Show-Menu {
     $c = Read-Host "   Ton choix"
     switch ($c) {
       "1" {
-        $d = Read-Host "   Durée max [2h]"; if (-not $d) { $d = "2h" }
-        $u = Read-Host "   Seuil d'usage en % [80]"; if (-not $u) { $u = "80" }
+        $d = Read-Host "   Durée max en heures (ex. 2, 1h30, 90m) [2]"; if (-not $d) { $d = "2" }
+        $u = Read-Host "   Seuil d'usage de la fenêtre de 5 h, en % (ex. 80) [80]"; if (-not $u) { $u = "80" }
+        if (-not ($u -match '^\d+$') -or [int]$u -lt 10 -or [int]$u -gt 100) { Write-N "Seuil invalide : $u (entre 10 et 100)" Red; Read-Host "   Entrée pour revenir au menu" | Out-Null; continue }
         try { nautilus start -Duree $d -Seuil ([int]$u) } catch { Write-N $_.Exception.Message Red }
       }
       "2" { nautilus stop }
@@ -108,7 +113,7 @@ function nautilus {
   [CmdletBinding()]
   param(
     [Parameter(Position = 0)] [string]$Commande = "menu",
-    [string]$Duree = "2h",
+    [string]$Duree = "2",
     [int]$Seuil = 80,
     [string]$Modele,
     [switch]$Reparer,
@@ -125,14 +130,16 @@ function nautilus {
         Write-N "Une session semble déjà ouverte (début $($s.start)). Lance 'nautilus stop' d'abord, ou 'nautilus start -Force'." Yellow
         return
       }
-      $min = Get-Minutes $Duree
+      try { $min = Get-Minutes $Duree } catch { Write-N $_.Exception.Message Red; return }
+      $h = [math]::Floor($min / 60); $r = $min % 60
+      $lib = if ($h -gt 0) { "$h h" + $(if ($r) { " $r" } else { "" }) } else { "$r min" }
       New-Item -ItemType Directory -Force -Path (Split-Path $script:Cfg) | Out-Null
       Remove-Item (Join-Path $script:Root ".nautilus\level.txt") -Force -ErrorAction SilentlyContinue
       [ordered]@{ start = (Get-Date).ToString("o"); maxMinutes = $min; usageThreshold = $Seuil; closed = $false } |
         ConvertTo-Json | Set-Content $script:Cfg -Encoding UTF8
       Write-N "Mise à jour des dépôts…"
       Update-Repos
-      Write-N "Session de dev : durée max $Duree, seuil d'usage $Seuil %. Réponds 'go' au plan du daily pour lancer le travail." Green
+      Write-N "Session de dev : durée max $lib ($min min), seuil d'usage $Seuil %. Réponds 'go' au plan du daily pour lancer le travail." Green
       Push-Location $script:Root
       $args2 = @("--dangerously-skip-permissions")
       if ($Modele) { $args2 += @("--model", $Modele) }
